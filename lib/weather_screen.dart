@@ -45,7 +45,7 @@ class WeatherScreenPage extends StatelessWidget {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text(
-                            "300° F",
+                            "300K",
                             style: TextStyle(
                                 fontSize: 32, fontWeight: FontWeight.bold),
                           ),
@@ -76,11 +76,28 @@ class WeatherScreenPage extends StatelessWidget {
               scrollDirection: Axis.horizontal,
               child: Row(
                 children: [
-                  HourlyForecastItem(),
-                  HourlyForecastItem(),
-                  HourlyForecastItem(),
-                  HourlyForecastItem(),
-                  HourlyForecastItem(),
+                  HourlyForecastItem(
+                    time: '12:00',
+                    icon: Icons.cloud,
+                    temperature: '33.0',
+                  ),
+                  HourlyForecastItem(
+                      time: "13:00", icon: Icons.sunny, temperature: "44.2"),
+                  HourlyForecastItem(
+                    time: "14:00",
+                    icon: Icons.sunny_snowing,
+                    temperature: "43.7",
+                  ),
+                  HourlyForecastItem(
+                    time: "15:00",
+                    icon: Icons.cloudy_snowing,
+                    temperature: "39",
+                  ),
+                  HourlyForecastItem(
+                    time: "16:00",
+                    icon: Icons.cloud,
+                    temperature: "10.2",
+                  ),
                 ],
               ),
             ),
@@ -93,9 +110,21 @@ class WeatherScreenPage extends StatelessWidget {
             const Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
-                AdditionalItemInfo(),
-                AdditionalItemInfo(),
-                AdditionalItemInfo(),
+                AdditionalItemInfo(
+                  icon: Icons.water_drop,
+                  label: "Humidity",
+                  value: "60",
+                ),
+                AdditionalItemInfo(
+                  icon: Icons.air,
+                  label: "Wind Speed",
+                  value: "100",
+                ),
+                AdditionalItemInfo(
+                  icon: Icons.beach_access,
+                  label: "Pressure",
+                  value: "413",
+                ),
               ],
             )
           ],
