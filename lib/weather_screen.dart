@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:ui';
+import 'package:intl/intl.dart';
 import 'package:weather_app/secrets.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
@@ -17,15 +18,11 @@ class WeatherScreenPage extends StatefulWidget {
 class _WeatherScreenPageState extends State<WeatherScreenPage> {
   double temp = 0.0;
 
-  @override
-  void initState() {
-    super.initState();
-    getCurrrentWeather();
-  }
+  late Future<Map<String, dynamic>> weather;
 
   Future<Map<String, dynamic>> getCurrrentWeather() async {
     try {
-      String cityName = "Poland";
+      String cityName = "Sosnowiec";
       final res = await http.get(Uri.parse(
           "http://api.openweathermap.org/data/2.5/forecast?q=$cityName&APPID=$ApiKey"));
 
@@ -34,12 +31,6 @@ class _WeatherScreenPageState extends State<WeatherScreenPage> {
       if (data['cod'] != "200") {
         throw 'An unexpected error occurred';
       }
-
-      // setState(() {
-      //   temp = data['list'][0]['main']['temp'];
-      //   weather = data['list'][0]['weather'][0]['main'];
-      //   isLoading = false;
-      // });
       return data;
     } catch (e) {
       throw e.toString();
@@ -47,9 +38,16 @@ class _WeatherScreenPageState extends State<WeatherScreenPage> {
   }
 
   @override
+  void initState() {
+    super.initState();
+    weather = getCurrrentWeather();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        backgroundColor: Colors.blue[300],
         title: const Text(
           "Weather App",
           style: TextStyle(fontWeight: FontWeight.bold),
@@ -57,13 +55,17 @@ class _WeatherScreenPageState extends State<WeatherScreenPage> {
         centerTitle: true,
         actions: [
           IconButton(
-            onPressed: () {},
+            onPressed: () {
+              setState(() {
+                weather = getCurrrentWeather();
+              });
+            },
             icon: const Icon(Icons.replay_outlined),
           ),
         ],
       ),
       body: FutureBuilder(
-        future: getCurrrentWeather(),
+        future: weather,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
@@ -131,41 +133,21 @@ class _WeatherScreenPageState extends State<WeatherScreenPage> {
                   style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 10),
-                // SingleChildScrollView(
-                //   scrollDirection: Axis.horizontal,
-                //   child: Row(
-                //     children: [
-                //       for (int i = 0; i < 5; i++)
-                //         HourlyForecastItem(
-                //           time: data['list'][i + 0]['dt'].toString(),
-                //           icon: data['list'][i + 0]['weather'][0]['main'] ==
-                //                       'Clouds' ||
-                //                   data['list'][i + 0]['weather'][0]['main'] ==
-                //                       'Rain'
-                //               ? Icons.cloud
-                //               : Icons.sunny,
-                //           temperature:
-                //               data['list'][i + 0]['main']['temp'].toString(),
-                //         )
-                //     ],
-                //   ),
-                // ),
                 SizedBox(
                   height: 120,
                   child: ListView.builder(
                     scrollDirection: Axis.horizontal,
                     itemCount: 5,
                     itemBuilder: (context, index) {
+                      final hourlySky = data['list'][index + 1];
+                      final time = DateTime.parse(hourlySky['dt_txt']);
                       return HourlyForecastItem(
-                        time: data['list'][index + 0]['dt'].toString(),
-                        icon: data['list'][index + 0]['weather'][0]['main'] ==
-                                    'Clouds' ||
-                                data['list'][index + 0]['weather'][0]['main'] ==
-                                    'Rain'
+                        time: DateFormat.jm().format(time),
+                        icon: hourlySky['weather'][0]['main'] == 'Clouds' ||
+                                hourlySky['weather'][0]['main'] == 'Rain'
                             ? Icons.cloud
                             : Icons.sunny,
-                        temperature:
-                            data['list'][index + 0]['main']['temp'].toString(),
+                        temperature: hourlySky['main']['temp'].toString(),
                       );
                     },
                   ),
